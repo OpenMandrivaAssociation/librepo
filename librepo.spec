@@ -28,7 +28,7 @@ BuildRequires:  curl-devel >= 7.19.0
 BuildRequires:  openssl-devel
 
 # prevent provides from nonstandard paths:
-%define __noautoprov %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
+%define __noautoprovfiles %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
 
 %description
 A library providing C and Python (libcURL like) API to downloading repository
