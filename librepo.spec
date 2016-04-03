@@ -1,6 +1,6 @@
 # OMV is missing stuff for python2
 %bcond_with python2
-%bcond_without tests
+%bcond_with tests
 
 %define major 0
 %define libname %mklibname repo %{major}
