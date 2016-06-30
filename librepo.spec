@@ -7,7 +7,7 @@
 %define devname %mklibname repo -d
 
 Name:           librepo
-Version:        1.7.17
+Version:        1.7.18
 Release:        1
 Summary:        Repodata downloading library
 
@@ -15,6 +15,7 @@ Group:          System/Libraries
 License:        LGPLv2+
 URL:            https://github.com/rpm-software-management/librepo
 Source0:        https://github.com/rpm-software-management/librepo/archive/%{name}-%{version}.tar.gz
+Patch0:		librepo-1.7.18-no--Llib64.patch
 
 
 BuildRequires:  pkgconfig(check)
@@ -87,6 +88,7 @@ Python 3 bindings for the librepo library.
 
 %prep
 %setup -q -n %{name}-%{name}-%{version}
+%apply_patches
 
 %if %{with python2}
 rm -rf py2
