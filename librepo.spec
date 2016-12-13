@@ -7,7 +7,7 @@
 %define devname %mklibname repo -d
 
 Name:           librepo
-Version:        1.7.17
+Version:        1.7.20
 Release:        1
 Summary:        Repodata downloading library
 
