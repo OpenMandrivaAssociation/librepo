@@ -1,3 +1,6 @@
+# OMV is missing stuff for tests
+%bcond_with tests
+
 %define major 0
 %define libname %mklibname repo %{major}
 %define devname %mklibname repo -d
@@ -52,8 +55,10 @@ Summary:        Python 2 bindings for the librepo library
 Group:          Development/Python
 BuildRequires:  python2-gpgme
 BuildRequires:  python2-devel
+%if %{with tests}
 BuildRequires:  python2-flask
 BuildRequires:  python2-nose
+%endif
 BuildRequires:  python2-sphinx
 BuildRequires:  python2-xattr
 Requires:       %{libname}%{?_isa} = %{EVRD}
@@ -67,8 +72,10 @@ Group:          Development/Python
 Provides:       python3-%{name} = %{EVRD}
 BuildRequires:  python-gpgme
 BuildRequires:  python3-devel
+%if %{with tests}
 BuildRequires:  python-flask
 BuildRequires:  python-nose
+%endif
 BuildRequires:  python-sphinx
 BuildRequires:  python-xattr
 Requires:       %{libname}%{?_isa} = %{EVRD}
@@ -92,6 +99,7 @@ pushd ../py2
 %make
 popd
 
+%if %{with tests}
 %check
 pushd ./build
 make ARGS="-V" test
@@ -101,6 +109,7 @@ popd
 pushd ./py2/build
 make ARGS="-V" test
 popd
+%endif
 
 %install
 pushd ./build
