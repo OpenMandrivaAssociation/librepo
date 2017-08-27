@@ -59,7 +59,6 @@ BuildRequires:  python2-devel
 BuildRequires:  python2-flask
 BuildRequires:  python2-nose
 %endif
-BuildRequires:  python2-sphinx
 BuildRequires:  python2-xattr
 Requires:       %{libname}%{?_isa} = %{EVRD}
 
@@ -95,7 +94,7 @@ mkdir py2
 %make
 
 pushd ../py2
-%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../
+%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF
 %make
 popd
 
