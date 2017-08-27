@@ -1,14 +1,10 @@
-# OMV is missing stuff for python2
-%bcond_with python2
-%bcond_with tests
-
 %define major 0
 %define libname %mklibname repo %{major}
 %define devname %mklibname repo -d
 
 Name:           librepo
 Version:        1.7.20
-Release:        1
+Release:        2
 Summary:        Repodata downloading library
 
 Group:          System/Libraries
@@ -51,23 +47,19 @@ Requires:       %{libname}%{?_isa} = %{EVRD}
 %description -n %{devname}
 Development files for %{name}.
 
-%if %{with python2}
 %package -n python2-librepo
 Summary:        Python 2 bindings for the librepo library
 Group:          Development/Python
 BuildRequires:  python2-gpgme
 BuildRequires:  python2-devel
-%if %{with tests}
 BuildRequires:  python2-flask
 BuildRequires:  python2-nose
-%endif
 BuildRequires:  python2-sphinx
 BuildRequires:  python2-xattr
 Requires:       %{libname}%{?_isa} = %{EVRD}
 
 %description -n python2-librepo
 Python 2 bindings for the librepo library.
-%endif
 
 %package -n python-librepo
 Summary:        Python 3 bindings for the librepo library
@@ -75,10 +67,8 @@ Group:          Development/Python
 Provides:       python3-%{name} = %{EVRD}
 BuildRequires:  python-gpgme
 BuildRequires:  python3-devel
-%if %{with tests}
 BuildRequires:  python-flask
 BuildRequires:  python-nose
-%endif
 BuildRequires:  python-sphinx
 BuildRequires:  python-xattr
 Requires:       %{libname}%{?_isa} = %{EVRD}
@@ -90,45 +80,36 @@ Python 3 bindings for the librepo library.
 %setup -q -n %{name}-%{name}-%{version}
 %apply_patches
 
-%if %{with python2}
 rm -rf py2
 mkdir py2
-%endif
 
 %build
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
 %make
 
-%if %{with python2}
 pushd ../py2
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../
 %make
 popd
-%endif
 
 %check
-%if %{with tests}
 pushd ./build
 make ARGS="-V" test
 make clean
 popd
 
-%if %{with python2}
 pushd ./py2/build
 make ARGS="-V" test
 popd
-%endif
-%endif
 
 %install
 pushd ./build
 %makeinstall_std
 popd
-%if %{with python2}
+
 pushd ./py2/build
 %makeinstall_std
 popd
-%endif
 
 %files -n %{libname}
 %doc COPYING README.md
@@ -139,10 +120,8 @@ popd
 %{_libdir}/pkgconfig/librepo.pc
 %{_includedir}/librepo/
 
-%if %{with python2}
 %files -n python2-librepo
 %{python2_sitearch}/librepo
-%endif
 
 %files -n python-librepo
 %{python3_sitearch}/librepo
