@@ -8,7 +8,7 @@
 Summary:	Repodata downloading library
 Name:		librepo
 Version:	1.7.20
-Release:	2
+Release:	3
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
@@ -68,7 +68,7 @@ Summary:	Python 3 bindings for the librepo library
 Group:		Development/Python
 Provides:	python3-%{name} = %{EVRD}
 BuildRequires:python-gpgme
-BuildRequires:	pkgconfig(python)
+BuildRequires:	pkgconfig(python3)
 %if %{with tests}
 BuildRequires:	python-flask
 BuildRequires:	python-nose
