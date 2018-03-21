@@ -21,7 +21,9 @@ BuildRequires:	doxygen
 BuildRequires:	pkgconfig(expat)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.26.0
 BuildRequires:	gpgme-devel
+BuildRequires:	libassuan-devel
 BuildRequires:	attr-devel
+BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	pkgconfig(libcurl) >= 7.19.0
 BuildRequires:	pkgconfig(openssl)
 
