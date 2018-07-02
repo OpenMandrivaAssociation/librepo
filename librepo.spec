@@ -83,7 +83,7 @@ Requires:	%{libname}%{?_isa} = %{EVRD}
 Python 3 bindings for the librepo library.
 
 %prep
-%setup -q -n %{name}-%{name}-%{version}
+%setup -q
 %apply_patches
 
 rm -rf py2
