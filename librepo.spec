@@ -18,7 +18,7 @@ Patch0:		librepo-1.7.18-no--Llib64.patch
 BuildRequires:	pkgconfig(check)
 BuildRequires:	cmake
 BuildRequires:	doxygen
-BuildRequires:	pkgconfig(expat)
+BuildRequires:	pkgconfig(libxml-2.0)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.26.0
 BuildRequires:	gpgme-devel
 BuildRequires:	libassuan-devel
