@@ -94,7 +94,7 @@ mkdir py2
 %make
 
 cd ../py2
-%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF
+%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF -DPYTHON_DESIRED:str=2
 %make
 cd ..
 
