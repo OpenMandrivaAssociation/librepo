@@ -7,7 +7,7 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.9.0
+Version:	1.9.1
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
@@ -53,7 +53,7 @@ Development files for %{name}.
 %package -n python2-librepo
 Summary:	Python 2 bindings for the librepo library
 Group:		Development/Python
-BuildRequires:	python2-gpgme
+BuildRequires:	python2-gpg
 BuildRequires:	pkgconfig(python2)
 %if %{with tests}
 BuildRequires:	python2-flask
@@ -69,7 +69,7 @@ Python 2 bindings for the librepo library.
 Summary:	Python 3 bindings for the librepo library
 Group:		Development/Python
 Provides:	python3-%{name} = %{EVRD}
-BuildRequires:python-gpgme
+BuildRequires:	python-gpg
 BuildRequires:	pkgconfig(python3)
 %if %{with tests}
 BuildRequires:	python-flask
