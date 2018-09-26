@@ -7,12 +7,12 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.9.1
+Version:	1.9.2
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
-Source0:	https://github.com/rpm-software-management/librepo/archive/%{name}-%{version}.tar.gz
+Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
 
 BuildRequires:	pkgconfig(check)
