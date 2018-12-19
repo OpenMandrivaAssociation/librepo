@@ -7,8 +7,8 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.9.2
-Release:	2
+Version:	1.9.3
+Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
@@ -26,6 +26,7 @@ BuildRequires:	attr-devel
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	pkgconfig(libcurl) >= 7.19.0
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(zck)
 
 # prevent provides from nonstandard paths:
 %define __noautoprovfiles %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
