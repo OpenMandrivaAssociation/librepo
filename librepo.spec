@@ -7,12 +7,12 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.9.5
+Version:	1.9.6
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
-Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}.tar.gz
+Source0:	https://github.com/rpm-software-management/librepo/archive/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
 
 BuildRequires:	pkgconfig(check)
@@ -84,19 +84,18 @@ Requires:	%{libname}%{?_isa} = %{EVRD}
 Python 3 bindings for the librepo library.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 rm -rf py2
 mkdir py2
 
 %build
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
-%make
+%make_build
 
 cd ../py2
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF -DPYTHON_DESIRED:str=2
-%make
+%make_build
 cd ..
 
 %if %{with tests}
@@ -113,11 +112,11 @@ cd ..
 
 %install
 cd ./build
-%makeinstall_std
+%make_install
 cd ..
 
 cd ./py2/build
-%makeinstall_std
+%make_install
 cd ..
 
 %files -n %{libname}
