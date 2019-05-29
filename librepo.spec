@@ -7,7 +7,7 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.10.2
+Version:	1.10.3
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
@@ -29,7 +29,7 @@ BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck)
 
 # prevent provides from nonstandard paths:
-%define __noautoprovfiles %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
+%define __provides_exclude_from %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
 
 %description
 A library providing C and Python (libcURL like) API to downloading repository
