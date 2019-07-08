@@ -91,11 +91,11 @@ mkdir py2
 
 %build
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
-%make_build
+%make_build LIBS="-lpthread"
 
 cd ../py2
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF -DPYTHON_DESIRED:str=2
-%make_build
+%make_build LIBS="-lpthread"
 cd ..
 
 %if %{with tests}
