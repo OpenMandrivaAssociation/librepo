@@ -5,6 +5,8 @@
 %define libname %mklibname repo %{major}
 %define devname %mklibname repo -d
 
+%global ldflags %{ldflags} -lpthread
+
 Summary:	Repodata downloading library
 Name:		librepo
 Version:	1.10.4
@@ -91,11 +93,11 @@ mkdir py2
 
 %build
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
-%make_build LIBS="-lpthread"
+%make_build
 
 cd ../py2
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF -DPYTHON_DESIRED:str=2
-%make_build LIBS="-lpthread"
+%make_build
 cd ..
 
 %if %{with tests}
