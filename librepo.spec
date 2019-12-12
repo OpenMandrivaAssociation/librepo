@@ -9,8 +9,8 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.11.0
-Release:	2
+Version:	1.11.1
+Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
