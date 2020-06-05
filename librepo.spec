@@ -9,7 +9,7 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.11.3
+Version:	1.12.0
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
