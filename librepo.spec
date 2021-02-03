@@ -31,7 +31,9 @@ BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck)
 
 # prevent provides from nonstandard paths:
-%define __provides_exclude_from %{python2_sitearch}/.*\\.so\\|%{python3_sitearch}/.*\\.so
+%define __provides_exclude_from %{python3_sitearch}/.*\\.so
+
+Obsoletes:	python2-librepo < 1.13.0
 
 %description
 A library providing C and Python (libcURL like) API to downloading repository
@@ -53,21 +55,6 @@ Requires:	%{libname}%{?_isa} = %{EVRD}
 %description -n %{devname}
 Development files for %{name}.
 
-%package -n python2-librepo
-Summary:	Python 2 bindings for the librepo library
-Group:		Development/Python
-BuildRequires:	python2-gpg
-BuildRequires:	pkgconfig(python2)
-%if %{with tests}
-BuildRequires:	python2-flask
-BuildRequires:	python2-nose
-%endif
-BuildRequires:	python2-xattr
-Requires:	%{libname}%{?_isa} = %{EVRD}
-
-%description -n python2-librepo
-Python 2 bindings for the librepo library.
-
 %package -n python-librepo
 Summary:	Python 3 bindings for the librepo library
 Group:		Development/Python
@@ -88,17 +75,9 @@ Python 3 bindings for the librepo library.
 %prep
 %autosetup -p1
 
-rm -rf py2
-mkdir py2
-
 %build
 %cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
 %make_build
-
-cd ../py2
-%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../ -DENABLE_DOCS:BOOL=OFF -DPYTHON_DESIRED:str=2
-%make_build
-cd ..
 
 %if %{with tests}
 %check
@@ -106,20 +85,10 @@ cd ./build
 make ARGS="-V" test
 make clean
 cd ..
-
-cd ./py2/build
-make ARGS="-V" test
-cd ..
 %endif
 
 %install
-cd ./build
-%make_install
-cd ..
-
-cd ./py2/build
-%make_install
-cd ..
+%make_install -C build
 
 %files -n %{libname}
 %{_libdir}/librepo.so.%{major}
@@ -129,9 +98,6 @@ cd ..
 %{_libdir}/librepo.so
 %{_libdir}/pkgconfig/librepo.pc
 %{_includedir}/librepo/
-
-%files -n python2-librepo
-%{python2_sitearch}/librepo
 
 %files -n python-librepo
 %{python3_sitearch}/librepo
