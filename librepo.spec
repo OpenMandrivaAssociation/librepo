@@ -9,7 +9,7 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.13.0
+Version:	1.14.0
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
@@ -26,9 +26,9 @@ BuildRequires:	gpgme-devel
 BuildRequires:	libassuan-devel
 BuildRequires:	attr-devel
 BuildRequires:	pkgconfig(gpg-error)
-BuildRequires:	pkgconfig(libcurl) >= 7.19.0
+BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
-BuildRequires:	pkgconfig(zck)
+BuildRequires:	pkgconfig(zck) >= 0.9.11
 
 # prevent provides from nonstandard paths:
 %define __provides_exclude_from %{python3_sitearch}/.*\\.so
