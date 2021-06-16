@@ -9,7 +9,7 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.14.0
+Version:	1.14.1
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
@@ -22,9 +22,9 @@ BuildRequires:	cmake
 BuildRequires:	doxygen
 BuildRequires:	pkgconfig(libxml-2.0)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.26.0
-BuildRequires:	gpgme-devel
-BuildRequires:	libassuan-devel
-BuildRequires:	attr-devel
+BuildRequires:	pkgconfig(gpgme)
+BuildRequires:	pkgconfig(libassuan)
+BuildRequires:	pkgconfig(libattr)
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
@@ -61,10 +61,7 @@ Group:		Development/Python
 Provides:	python3-%{name} = %{EVRD}
 BuildRequires:	python-gpg
 BuildRequires:	pkgconfig(python3)
-%if %{with tests}
-BuildRequires:	python-flask
-BuildRequires:	python-nose
-%endif
+BuildRequires:	python-requests
 BuildRequires:	python-sphinx
 BuildRequires:	python-xattr
 Requires:	%{libname}%{?_isa} = %{EVRD}
@@ -76,7 +73,7 @@ Python 3 bindings for the librepo library.
 %autosetup -p1
 
 %build
-%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPYTHON_DESIRED:str=3
+%cmake
 %make_build
 
 %if %{with tests}
