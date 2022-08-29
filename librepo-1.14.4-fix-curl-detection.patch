@@ -1,0 +1,13 @@
+diff -up librepo-1.14.4/CMakeLists.txt.omv~ librepo-1.14.4/CMakeLists.txt
+diff -up librepo-1.14.4/librepo/CMakeLists.txt.omv~ librepo-1.14.4/librepo/CMakeLists.txt
+--- librepo-1.14.4/librepo/CMakeLists.txt.omv~	2022-08-29 19:51:47.105968724 +0200
++++ librepo-1.14.4/librepo/CMakeLists.txt	2022-08-29 19:52:15.176173658 +0200
+@@ -48,7 +48,7 @@ SET(librepo_HEADERS
+ ADD_LIBRARY(librepo SHARED ${librepo_SRCS})
+ TARGET_LINK_LIBRARIES(librepo
+                         ${LIBXML2_LIBRARIES}
+-                        ${CURL_LIBRARY}
++			CURL::libcurl
+                         ${LIBCRYPTO_LIBRARIES}
+                         ${GPGME_VANILLA_LIBRARIES}
+                         ${GLIB2_LIBRARIES}

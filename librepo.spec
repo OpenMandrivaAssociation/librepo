@@ -16,6 +16,7 @@ License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
 Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
+Patch1:		librepo-1.14.4-fix-curl-detection.patch
 
 BuildRequires:	pkgconfig(check)
 BuildRequires:	cmake
@@ -29,6 +30,7 @@ BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck) >= 0.9.11
+BuildRequires:	pkgconfig(libssh2)
 
 # prevent provides from nonstandard paths:
 %define __provides_exclude_from %{python3_sitearch}/.*\\.so
