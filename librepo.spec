@@ -31,6 +31,7 @@ BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck) >= 0.9.11
 BuildRequires:	pkgconfig(libssh2)
+BuildRequires:	pkgconfig(libidn2)
 
 # prevent provides from nonstandard paths:
 %define __provides_exclude_from %{python3_sitearch}/.*\\.so
