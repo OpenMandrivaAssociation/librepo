@@ -5,11 +5,11 @@
 %define libname %mklibname repo %{major}
 %define devname %mklibname repo -d
 
-%global ldflags %{ldflags} -lpthread
+%global build_ldflags %{build_ldflags} -lpthread
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.14.4
+Version:	1.14.5
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
