@@ -9,15 +9,13 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.15.1
-Release:	2
+Version:	1.15.2
+Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
 Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
-Patch1:		librepo-1.14.4-fix-curl-detection.patch
-
 BuildRequires:	pkgconfig(check)
 BuildRequires:	cmake
 BuildRequires:	doxygen
