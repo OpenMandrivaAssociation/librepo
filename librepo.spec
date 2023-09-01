@@ -1,39 +1,28 @@
-# OMV is missing stuff for tests
-%bcond_with tests
-
 %define major 0
 %define libname %mklibname repo %{major}
 %define devname %mklibname repo -d
 
-%global build_ldflags %{build_ldflags} -lpthread
+# prevent provides from nonstandard paths:
+%define __provides_exclude_from %{python_sitearch}/.*\\.so
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.15.2
+Version:	1.16.0
 Release:	1
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
 Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
-BuildRequires:	pkgconfig(check)
 BuildRequires:	cmake
 BuildRequires:	doxygen
+BuildRequires:	pkgconfig(check)
 BuildRequires:	pkgconfig(libxml-2.0)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.26.0
-BuildRequires:	pkgconfig(gpgme)
-BuildRequires:	pkgconfig(libassuan)
-BuildRequires:	pkgconfig(libattr)
-BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck) >= 0.9.11
-BuildRequires:	pkgconfig(libssh2)
-BuildRequires:	pkgconfig(libidn2)
-
-# prevent provides from nonstandard paths:
-%define __provides_exclude_from %{python3_sitearch}/.*\\.so
-
+BuildRequires:	pkgconfig(rpm) >= 4.18.0
 Obsoletes:	python2-librepo < 1.13.0
 
 %description
@@ -61,29 +50,24 @@ Summary:	Python 3 bindings for the librepo library
 Group:		Development/Python
 Provides:	python3-%{name} = %{EVRD}
 BuildRequires:	python-gpg
-BuildRequires:	pkgconfig(python3)
+BuildRequires:	pkgconfig(python)
 BuildRequires:	python-requests
 BuildRequires:	python-sphinx
 BuildRequires:	python-xattr
 Requires:	%{libname}%{?_isa} = %{EVRD}
 
 %description -n python-librepo
-Python 3 bindings for the librepo library.
+Python bindings for the librepo library.
 
 %prep
 %autosetup -p1
 
 %build
-%cmake
-%make_build
+%cmake \
+	-DWITH_ZCHUNK=ON \
+	-DUSE_GPGME=OFF
 
-%if %{with tests}
-%check
-cd ./build
-make ARGS="-V" test
-make clean
-cd ..
-%endif
+%make_build
 
 %install
 %make_install -C build
@@ -98,4 +82,4 @@ cd ..
 %{_includedir}/librepo/
 
 %files -n python-librepo
-%{python3_sitearch}/librepo
+%{python_sitearch}/librepo
