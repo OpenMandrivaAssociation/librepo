@@ -8,7 +8,7 @@
 Summary:	Repodata downloading library
 Name:		librepo
 Version:	1.16.0
-Release:	1
+Release:	2
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
@@ -53,7 +53,7 @@ BuildRequires:	python-gpg
 BuildRequires:	pkgconfig(python)
 BuildRequires:	python-requests
 BuildRequires:	python-sphinx
-BuildRequires:	python-xattr
+BuildRequires:	python-pyxattr
 Requires:	%{libname}%{?_isa} = %{EVRD}
 
 %description -n python-librepo
