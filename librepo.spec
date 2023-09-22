@@ -15,6 +15,7 @@ URL:		https://github.com/rpm-software-management/librepo
 Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.7.18-no--Llib64.patch
 BuildRequires:	cmake
+BuildRequires:	ninja
 BuildRequires:	doxygen
 BuildRequires:	pkgconfig(check)
 BuildRequires:	pkgconfig(libxml-2.0)
@@ -61,16 +62,17 @@ Python bindings for the librepo library.
 
 %prep
 %autosetup -p1
-
-%build
 %cmake \
 	-DWITH_ZCHUNK=ON \
-	-DUSE_GPGME=OFF
+	-DUSE_GPGME=OFF \
+	-DPKG_CONFIG_EXECUTABLE=%{_bindir}/pkg-config \
+	-G Ninja
 
-%make_build
+%build
+%ninja_build -C build
 
 %install
-%make_install -C build
+%ninja_install -C build
 
 %files -n %{libname}
 %{_libdir}/librepo.so.%{major}
