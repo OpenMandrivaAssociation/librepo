@@ -66,6 +66,9 @@ Python bindings for the librepo library.
 	-DWITH_ZCHUNK=ON \
 	-DUSE_GPGME=OFF \
 	-DPKG_CONFIG_EXECUTABLE=%{_bindir}/pkg-config \
+%if %{cross_compiling}
+	-DENABLE_TESTS:BOOL=OFF \
+%endif
 	-G Ninja
 
 %build
@@ -73,6 +76,12 @@ Python bindings for the librepo library.
 
 %install
 %ninja_install -C build
+%if %{cross_compiling}
+# The cmake files can't detect the python install dirs
+# correctly when crosscompiling
+mkdir -p %{buildroot}%{python_sitearch}
+mv %{buildroot}/librepo %{buildroot}%{python_sitearch}/
+%endif
 
 %files -n %{libname}
 %{_libdir}/librepo.so.%{major}
