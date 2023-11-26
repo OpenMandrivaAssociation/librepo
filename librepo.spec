@@ -1,5 +1,6 @@
 %define major 0
-%define libname %mklibname repo %{major}
+%define oldlibname %mklibname repo 0
+%define libname %mklibname repo
 %define devname %mklibname repo -d
 
 # prevent provides from nonstandard paths:
@@ -8,7 +9,7 @@
 Summary:	Repodata downloading library
 Name:		librepo
 Version:	1.17.0
-Release:	1
+Release:	2
 Group:		System/Libraries
 License:	LGPLv2+
 URL:		https://github.com/rpm-software-management/librepo
@@ -33,6 +34,7 @@ metadata.
 %package -n %{libname}
 Summary:	Libraries for %{name}
 Group:		System/Libraries
+%rename %{oldlibname}
 
 %description -n %{libname}
 Libraries for %{name}.
