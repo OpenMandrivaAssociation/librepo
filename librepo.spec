@@ -88,12 +88,6 @@ sed -i -e 's/INCLUDE_DIRECTORIES(\${LIBXML/#&/g' CMakeLists.txt
 
 %install
 %ninja_install -C build
-%if %{cross_compiling}
-# The cmake files can't detect the python install dirs
-# correctly when crosscompiling
-mkdir -p %{buildroot}%{python_sitearch}
-mv %{buildroot}/librepo %{buildroot}%{python_sitearch}/
-%endif
 
 %files -n %{libname}
 %{_libdir}/librepo.so.%{major}
