@@ -1,16 +1,16 @@
-diff -Naur librepo-1.9.0/librepo/librepo.pc.cmake librepo-1.9.0.tpg/librepo/librepo.pc.cmake
---- librepo-1.9.0/librepo/librepo.pc.cmake	2018-06-26 08:08:30.000000000 +0000
-+++ librepo-1.9.0.tpg/librepo/librepo.pc.cmake	2018-07-02 21:05:50.368994470 +0000
+diff -up librepo-1.18.1/librepo/librepo.pc.cmake.1~ librepo-1.18.1/librepo/librepo.pc.cmake
+--- librepo-1.18.1/librepo/librepo.pc.cmake.1~	2024-08-14 21:18:19.000000000 +0200
++++ librepo-1.18.1/librepo/librepo.pc.cmake	2024-10-07 21:31:41.391800058 +0200
 @@ -1,5 +1,4 @@
  prefix=@CMAKE_INSTALL_PREFIX@
 -libdir=@CMAKE_INSTALL_FULL_LIBDIR@
  includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
  
  Name: librepo
-@@ -7,6 +6,6 @@
+@@ -7,6 +6,6 @@ Description: Repodata downloading librar
  Version: @VERSION@
  Requires: glib-2.0
- Requires.private: libcurl openssl libxml-2.0
+ Requires.private: libcurl openssl libxml-2.0 @PKGCONF_DEPENDENCY_ZCK@
 -Libs: -L${libdir} -lrepo
 +Libs: -lrepo
  Libs.private: -lgpgme -lgpg-error
