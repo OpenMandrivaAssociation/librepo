@@ -56,7 +56,7 @@ BuildRequires:	python-gpgme
 BuildRequires:	pkgconfig(python)
 BuildRequires:	python-requests
 BuildRequires:	python-sphinx
-BuildRequires:	python-pyxattr
+BuildRequires:	python%{pyver}dist(pyxattr)
 Requires:	%{libname}%{?_isa} = %{EVRD}
 
 %description -n python-librepo
