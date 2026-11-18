@@ -17,6 +17,7 @@ Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 Patch0:		librepo-1.22.0-no--Llib64.patch
 Patch1:		librepo-1.22.0-rpm6-libpgpr-armor-signature.patch
 Patch2:		librepo-1.22.0-test-gpg-armor-header.patch
+Patch3:		librepo-1.22.0-test-resume-skip-without-xattr.patch
 BuildRequires:	cmake
 BuildRequires:	ninja
 BuildRequires:	pkgconfig(check)
