@@ -1,0 +1,87 @@
+--- a/tests/test_gpg.c	2026-11-19 03:09:42.960514143 +0500
++++ b/tests/test_gpg.c	2026-11-19 03:09:42.960574232 +0500
+@@ -184,41 +184,51 @@
+     subkeys = lr_gpg_subkey_get_next(subkeys);
+     ck_assert_ptr_null(subkeys);
+ 
+-    // Test exported raw key
++    // Test exported raw key (allow optional RFC 4880 armor headers such as "Version:")
+     const char *raw_key = lr_gpg_key_get_raw_key(keys);
+     ck_assert_ptr_nonnull(raw_key);
+-    ck_assert(strstr(raw_key,
+-                     "-----BEGIN PGP PUBLIC KEY BLOCK-----\n"
+-                     "\n"
+-                     "mQENBGQCK4MBCACmfps+HeGv3BnrFmOO5PGPFDgQ0KtmSkfkrw8Sf3dcsfiMS9II\n"
+-                     "2AOJNLd8NOgOkGGlyymrrf/FKPWnQHQDKxLgOuZ0FvAIfb+VNTjnuj8TfO94y7n1\n"
+-                     "VpCu7oRKOQLfmRd3OQDe0CofNjYeYKn2l/an/x80o3ikoFMEdHcOkdhPkm/Kf5oc\n"
+-                     "bJYVvxb81vvtsEOV5/+ybCpJIxXhk1y3DBBhaZGfEYOy9oF5/w2ZmL+mbLQ6KVlK\n"
+-                     "euTDlADLv3KAtGALy1E/ZHANChPc372JI7osKT6MhRr1fItY6NCFSgXapDtea0x0\n"
+-                     "sZj6LvOuWISZ5n+YoTM+loMgxjFHXEd7nV93ABEBAAG0NXJlcG9zaXRvcnkgc2ln\n"
+-                     "bmluZyBrZXkgKHRlc3Qga2V5KSA8bm9vbmVAZXhhbXBsZS5vcmc+iQFOBBMBCgA4\n"
+-                     "FiEE9PxbasWGlgI7nb+xl723kGRB7fUFAmQCK4MCGwMFCwkIBwIGFQoJCAsCBBYC\n"
+-                     "AwECHgECF4AACgkQl723kGRB7fUC7Af/YSwbvM2xsjK947FOmVfX63qf5v2fRI7Q\n"
+-                     "CEil6X8uZw5UXEvqsGDZCqmhYKSKlNnuky392D0/Kp0h3KCJ7KHA9/SCHrnl2PN4\n"
+-                     "nenX5xunwJd3mhGOtLR2WSYXLBlG5Dh6bkDsWEaR8OPC8rSNNM9OfuuXMWf0OF91\n"
+-                     "WYwleixUrfMbX9gVKozFzGv/yAospsJ0F48Z3RW+XROYLwbk72G6jXR0hkB1zEpN\n"
+-                     "gwbpldxQFEagBDNwpvCF8jlwCOLjOQWM3oTx4YUdG4gAEGDKLsJcv4cMTaEUCr0r\n"
+-                     "FEIHRcFCox7P4f9UFlIUNLj6zWNP9Nr3Yuqfh4bdYJfWE9kK271NErkBDQRkAiuD\n"
+-                     "AQgAxjdpqh4z8wcURkon/bdxLKeI1weKYEdprNrEEHLlk5hV+qQ5dHtUCHBcf2sH\n"
+-                     "kAwG4S3s4WAVoNyFP2l1gC5eM6/J/t1K5UgKEsDdCcVQMO1hA+T6breCLGTyS3Ut\n"
+-                     "Qes/EZloe+zUjH8covZQwQJFuZp5xVaTVK/7IjYzL/zUK6ySjbXGU4W/iYGV07Je\n"
+-                     "1W401uCwc3nosjptXgmc6Nhawn6U+I5tgPgX4L8hI3tla+fsiUpDD+Xlz3m90f8w\n"
+-                     "4baHRSajB4b6Llu963JSTUE5tKfmxVVfHbKTe2Y5Nf6coJXfFxy3UuFDTUfK5S/C\n"
+-                     "rIwB+ZoahvjfhC6eg7gh4LNnawARAQABiQE2BBgBCgAgFiEE9PxbasWGlgI7nb+x\n"
+-                     "l723kGRB7fUFAmQCK4MCGwwACgkQl723kGRB7fV9Dgf9GvTNb36IxIOhyqWFFXZp\n"
+-                     "C3NqyyIbRZ6KEXUzLaC88fx2hK1BQkeDASUS0HxccCCdjR1zesk0QfZtGJxVQFw+\n"
+-                     "AyLWzMGRLDfMvXYRLzjYowYJ++beVadt/EfPzRHckunW75PLHrDd89Hur92r4ikK\n"
+-                     "42GA3ZDPr9yggpnYvsAXt25lDx37HN3SeVds2Gb6wA01Vo6jXVKQGhRgk9K5T8dB\n"
+-                     "szn12XdPGxhzo1HXPUFWwSi8SODpG+MkC+IGOrFzPHW5R5kOO7+nbALjzLWSrcfw\n"
+-                     "zLiMgTqA0Z2O8QcTGSQ7jYQhSaWguWzhT1LsZ0/9xNGSHyWfYkYtXPAogB50qlvM\n"
+-                     "LQ==\n"
+-                     "=RI7R\n"
+-                     "-----END PGP PUBLIC KEY BLOCK-----\n") != NULL);
++    static const char armor_begin[] = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n";
++    static const char armor_body[] =
++        "\n"
++        "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\n"
++        "LQ==\n"
++        "=RI7R\n"
++        "-----END PGP PUBLIC KEY BLOCK-----\n";
++    ck_assert(g_str_has_prefix(raw_key, armor_begin));
++    const char *cursor = raw_key + sizeof(armor_begin) - 1;
++    while (*cursor != '\0' && *cursor != '\n') {
++        const char *nl = strchr(cursor, '\n');
++        ck_assert_ptr_nonnull(nl);
++        const char *colon = memchr(cursor, ':', (size_t)(nl - cursor));
++        ck_assert_ptr_nonnull(colon);
++        cursor = nl + 1;
++    }
++    ck_assert(strcmp(cursor, armor_body) == 0);
+ 
+     // Only one key is in keyring
+     ck_assert_ptr_null(lr_gpg_key_get_next(keys));

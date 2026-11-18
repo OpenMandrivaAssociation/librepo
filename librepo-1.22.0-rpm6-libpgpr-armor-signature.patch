@@ -1,0 +1,233 @@
+--- a/librepo/gpg_rpm.c	2026-11-19 03:01:08.603537211 +0500
++++ b/librepo/gpg_rpm.c	2026-11-19 03:01:42.056354703 +0500
+@@ -307,7 +307,7 @@
+         } else {
+             g_autofree gchar * keyid_hex = bin_to_hex(keyid, sizeof(pgpKeyID_t));
+             g_autofree gchar * path = g_strconcat(home_dir, "/", keyid_hex, ".pub", NULL);
+-            if (write_memory_to_file(path, key, key_len, err) <= 0) {
++            if (write_memory_to_file(path, key, cert_len, err) <= 0) {
+                 pgpDigParamsFree(main_dig_params);
+                 g_debug("%s: Error: Writing file \"%s\" to keyring failed", __func__, path);
+                 g_set_error(err, LR_GPG_ERROR, LRE_GPGERROR, "Writing file \"%s\" to keyring failed", path);
+@@ -517,6 +517,211 @@
+     return lr_keys;
+ }
+ 
++static int
++b64_char_val(unsigned char c) {
++    if (c >= 'A' && c <= 'Z') return c - 'A';
++    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
++    if (c >= '0' && c <= '9') return c - '0' + 52;
++    if (c == '+') return 62;
++    if (c == '/') return 63;
++    return -1;
++}
++
++static uint32_t
++pgp_crc24(const uint8_t *octets, size_t len) {
++    uint32_t crc = 0xb704ceU;
++    for (size_t i = 0; i < len; ++i) {
++        crc ^= (uint32_t)octets[i] << 16;
++        for (int b = 0; b < 8; ++b) {
++            crc <<= 1;
++            if (crc & 0x1000000U) {
++                crc ^= 0x1864cfbU;
++            }
++        }
++    }
++    return crc & 0xffffffU;
++}
++
++static pgpArmor
++decode_base64_body(const char *start, const char *end, uint8_t **out, size_t *out_len) {
++    size_t raw_len = (size_t)(end - start);
++    g_autofree gchar *b64_clean = g_malloc(raw_len + 1);
++    size_t idx = 0;
++    for (const char *q = start; q < end; ++q) {
++        if (*q == '\r' || *q == '\n') {
++            continue;
++        }
++        if (b64_char_val((unsigned char)*q) < 0 && *q != '=') {
++            return PGPARMOR_ERR_BODY_DECODE;
++        }
++        b64_clean[idx++] = *q;
++    }
++    if (idx == 0 || (idx % 4) != 0) {
++        return PGPARMOR_ERR_BODY_DECODE;
++    }
++    b64_clean[idx] = '\0';
++
++    uint8_t *buf = malloc((idx / 4) * 3);
++    if (!buf) {
++        return PGPARMOR_ERR_BODY_DECODE;
++    }
++
++    size_t decoded_len = 0;
++    gboolean seen_pad = FALSE;
++    for (size_t i = 0; i < idx; i += 4) {
++        if (seen_pad) {
++            free(buf);
++            return PGPARMOR_ERR_BODY_DECODE;
++        }
++        int c0 = b64_char_val((unsigned char)b64_clean[i]);
++        int c1 = b64_char_val((unsigned char)b64_clean[i + 1]);
++        if (c0 < 0 || c1 < 0) {
++            free(buf);
++            return PGPARMOR_ERR_BODY_DECODE;
++        }
++        char p2 = b64_clean[i + 2];
++        char p3 = b64_clean[i + 3];
++        if (p2 == '=') {
++            if (p3 != '=') {
++                free(buf);
++                return PGPARMOR_ERR_BODY_DECODE;
++            }
++            seen_pad = TRUE;
++            buf[decoded_len++] = (uint8_t)((c0 << 2) | (c1 >> 4));
++        } else {
++            int c2 = b64_char_val((unsigned char)p2);
++            if (c2 < 0) {
++                free(buf);
++                return PGPARMOR_ERR_BODY_DECODE;
++            }
++            if (p3 == '=') {
++                seen_pad = TRUE;
++                buf[decoded_len++] = (uint8_t)((c0 << 2) | (c1 >> 4));
++                buf[decoded_len++] = (uint8_t)(((c1 & 0x0f) << 4) | (c2 >> 2));
++            } else {
++                int c3 = b64_char_val((unsigned char)p3);
++                if (c3 < 0) {
++                    free(buf);
++                    return PGPARMOR_ERR_BODY_DECODE;
++                }
++                buf[decoded_len++] = (uint8_t)((c0 << 2) | (c1 >> 4));
++                buf[decoded_len++] = (uint8_t)(((c1 & 0x0f) << 4) | (c2 >> 2));
++                buf[decoded_len++] = (uint8_t)(((c2 & 0x03) << 6) | c3);
++            }
++        }
++    }
++
++    *out = buf;
++    *out_len = decoded_len;
++    return PGPARMOR_SIGNATURE;
++}
++
++/* Fallback ASCII-Armor signature decoder for rpm >= 6 with libpgpr, whose
++ * pgpParsePkts() only accepts "PUBLIC KEY BLOCK" and rejects SIGNATURE blocks.
++ */
++static pgpArmor
++dearmor_pgp_signature(const char *armor, uint8_t **pkts, size_t *pkts_len) {
++    static const char footer[] = "-----END PGP SIGNATURE-----";
++    const size_t header_len = strlen(BEGIN_OPENPGP_SIGNATURE);
++    const size_t footer_len = sizeof(footer) - 1;
++
++    if (strncmp(armor, BEGIN_OPENPGP_SIGNATURE, header_len) != 0) {
++        return PGPARMOR_ERR_NO_BEGIN_PGP;
++    }
++    const char *p = armor + header_len;
++    if (*p == '\r') ++p;
++    if (*p != '\n') {
++        return PGPARMOR_ERR_NO_BEGIN_PGP;
++    }
++    ++p;
++
++    // Skip armor headers up to blank separator line
++    while (*p != '\0') {
++        const char *nl = strchr(p, '\n');
++        if (!nl) {
++            return PGPARMOR_ERR_NO_END_PGP;
++        }
++        size_t stripped_len = (size_t)(nl - p);
++        if (stripped_len > 0 && p[stripped_len - 1] == '\r') {
++            --stripped_len;
++        }
++        if (stripped_len == 0) {
++            p = nl + 1;
++            break;
++        }
++        if (memchr(p, ':', stripped_len) == NULL) {
++            return PGPARMOR_ERR_UNKNOWN_PREAMBLE_TAG;
++        }
++        p = nl + 1;
++    }
++
++    const char *body_start = p;
++    const char *body_end = NULL;
++    gboolean found_crc = FALSE;
++    uint32_t expected_crc = 0;
++
++    while (*p != '\0') {
++        if (*p == '=' || strncmp(p, footer, footer_len) == 0) {
++            body_end = p;
++            if (*p == '=') {
++                found_crc = TRUE;
++                if (strlen(p) < 5) {
++                    return PGPARMOR_ERR_CRC_DECODE;
++                }
++                int v0 = b64_char_val((unsigned char)p[1]);
++                int v1 = b64_char_val((unsigned char)p[2]);
++                int v2 = b64_char_val((unsigned char)p[3]);
++                int v3 = b64_char_val((unsigned char)p[4]);
++                if (v0 < 0 || v1 < 0 || v2 < 0 || v3 < 0) {
++                    return PGPARMOR_ERR_CRC_DECODE;
++                }
++                expected_crc = ((uint32_t)v0 << 18) | ((uint32_t)v1 << 12) |
++                               ((uint32_t)v2 << 6) | (uint32_t)v3;
++                p += 5;
++                if (*p == '\r') ++p;
++                if (*p != '\n') {
++                    return PGPARMOR_ERR_CRC_DECODE;
++                }
++                ++p;
++            }
++            if (strncmp(p, footer, footer_len) != 0) {
++                return PGPARMOR_ERR_NO_END_PGP;
++            }
++            p += footer_len;
++            if (*p == '\r') ++p;
++            if (*p != '\n' && *p != '\0') {
++                return PGPARMOR_ERR_NO_END_PGP;
++            }
++            break;
++        }
++        const char *nl = strchr(p, '\n');
++        if (!nl) {
++            return PGPARMOR_ERR_NO_END_PGP;
++        }
++        p = nl + 1;
++    }
++
++    if (body_end == NULL) {
++        return PGPARMOR_ERR_NO_END_PGP;
++    }
++
++    uint8_t *decoded = NULL;
++    size_t decoded_len = 0;
++    pgpArmor dec_rc = decode_base64_body(body_start, body_end, &decoded, &decoded_len);
++    if (dec_rc < 0) {
++        return dec_rc;
++    }
++
++    if (found_crc && pgp_crc24(decoded, decoded_len) != expected_crc) {
++        free(decoded);
++        return PGPARMOR_ERR_CRC_CHECK;
++    }
++
++    *pkts = decoded;
++    *pkts_len = decoded_len;
++    return PGPARMOR_SIGNATURE;
++}
++
+ static gboolean
+ check_signature(const gchar * sig_buf, ssize_t sig_buf_len, const gchar * data, ssize_t data_len, const char * home_dir, GError **err) {
+     uint8_t * pkts = NULL;
+@@ -542,6 +747,9 @@
+         }
+ 
+         pgpArmor ret_pgparmor = pgpParsePkts((const char *)block_begin, &pkts, &pkts_len);
++        if (ret_pgparmor == PGPARMOR_ERR_NO_BEGIN_PGP) {
++            ret_pgparmor = dearmor_pgp_signature(block_begin, &pkts, &pkts_len);
++        }
+         if (ret_pgparmor < 0) {
+             g_debug("%s: Error: Parsing armored OpenPGP packet(s) failed", __func__);
+             g_set_error(err, LR_GPG_ERROR, LRE_GPGERROR, "Parsing armored OpenPGP packet(s) failed");
