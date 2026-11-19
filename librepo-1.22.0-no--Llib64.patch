@@ -1,0 +1,16 @@
+--- a/librepo/librepo.pc.cmake	2026-11-19 03:01:08.602426440 +0500
++++ b/librepo/librepo.pc.cmake	2026-11-19 03:01:37.940461889 +0500
+@@ -1,5 +1,4 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+-libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+ includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+ 
+ Name: librepo
+@@ -7,6 +6,6 @@
+ Version: @VERSION@
+ Requires: glib-2.0
+ Requires.private: libcurl openssl libxml-2.0 gio-2.0 @PKGCONF_DEPENDENCY_ZCK@ @PKGCONF_REQUIRES_SELINUX@
+-Libs: -L${libdir} -lrepo
++Libs: -lrepo
+ Libs.private: -lgpgme -lgpg-error
+ Cflags: -I${includedir} -D_FILE_OFFSET_BITS=64

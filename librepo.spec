@@ -8,19 +8,22 @@
 
 Summary:	Repodata downloading library
 Name:		librepo
-Version:	1.20.0
-Release:	4
+Version:	1.22.0
+Release:	1
 Group:		System/Libraries
-License:	LGPLv2+
+License:	LGPL-2.1-or-later
 URL:		https://github.com/rpm-software-management/librepo
-Source0:	https://github.com/rpm-software-management/librepo/archive/%{version}/%{name}-%{version}.tar.gz
-Patch0:		librepo-1.7.18-no--Llib64.patch
+Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
+Patch0:		librepo-1.22.0-no--Llib64.patch
+Patch1:		librepo-1.22.0-rpm6-libpgpr-armor-signature.patch
+Patch2:		librepo-1.22.0-test-gpg-armor-header.patch
+Patch3:		librepo-1.22.0-test-resume-skip-without-xattr.patch
 BuildRequires:	cmake
 BuildRequires:	ninja
-BuildRequires:	doxygen
 BuildRequires:	pkgconfig(check)
 BuildRequires:	pkgconfig(libxml-2.0)
-BuildRequires:	pkgconfig(glib-2.0) >= 2.26.0
+BuildRequires:	pkgconfig(glib-2.0) >= 2.66
+BuildRequires:	pkgconfig(gio-2.0)
 BuildRequires:	pkgconfig(libcurl) >= 7.52.0
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zck) >= 0.9.11
@@ -55,12 +58,11 @@ Provides:	python3-%{name} = %{EVRD}
 BuildRequires:	python-gpgme
 BuildRequires:	pkgconfig(python)
 BuildRequires:	python-requests
-BuildRequires:	python-sphinx
 BuildRequires:	python%{pyver}dist(pyxattr)
 Requires:	%{libname}%{?_isa} = %{EVRD}
 
 %description -n python-librepo
-Python bindings for the librepo library.
+Python 3 bindings for the librepo repository metadata downloading library.
 
 %prep
 %autosetup -p1
@@ -77,6 +79,7 @@ sed -i -e 's/INCLUDE_DIRECTORIES(\${LIBXML/#&/g' CMakeLists.txt
 %cmake \
 	-DWITH_ZCHUNK=ON \
 	-DUSE_GPGME=OFF \
+	-DENABLE_DOCS:BOOL=OFF \
 	-DPKG_CONFIG_EXECUTABLE=%{_bindir}/pkg-config \
 %if %{cross_compiling}
 	-DENABLE_TESTS:BOOL=OFF \
@@ -89,11 +92,17 @@ sed -i -e 's/INCLUDE_DIRECTORIES(\${LIBXML/#&/g' CMakeLists.txt
 %install
 %ninja_install -C build
 
+%if !%{cross_compiling}
+%check
+ctest --test-dir build --output-on-failure
+%endif
+
 %files -n %{libname}
 %{_libdir}/librepo.so.%{major}
 
 %files -n %{devname}
-%doc COPYING README.md
+%license COPYING
+%doc README.md
 %{_libdir}/librepo.so
 %{_libdir}/pkgconfig/librepo.pc
 %{_includedir}/librepo/

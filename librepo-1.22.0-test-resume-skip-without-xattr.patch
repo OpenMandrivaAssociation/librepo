@@ -1,0 +1,47 @@
+From: Sergey Braumann <sergeybraumann@gmail.com>
+Subject: [PATCH] tests: skip test_download_packages_resume_on_mirror_switch without xattr
+
+`prepare_next_transfer()` in `librepo/downloader.c` refuses to resume
+partial files unless `user.librepo.downloadinprogress` xattr is present on
+the file descriptor. When the build/test directory resides on a
+filesystem without `user.*` xattr support (such as `tmpfs` without
+`CONFIG_TMPFS_XATTR` on some builders), `add_librepo_xattr()` silently
+fails with `EOPNOTSUPP`, so switching mirrors drops `resume` and sends a
+non-Range request to `range_only`, returning 404.
+
+Match the sibling resume tests in `test_yum_package_downloading.py` by
+probing `user.librepo.downloadinprogress` on a temporary file in
+`self.tmpdir` and skipping with `self.skipTest` on `EOPNOTSUPP`.
+
+---
+ tests/python/tests/test_yum_package_downloading.py | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/tests/python/tests/test_yum_package_downloading.py b/tests/python/tests/test_yum_package_downloading.py
+index 1111111..2222222 100644
+--- a/tests/python/tests/test_yum_package_downloading.py
++++ b/tests/python/tests/test_yum_package_downloading.py
+@@ -810,6 +810,23 @@ class TestCaseYumPackageDownloading(TestCaseWithServer):
+         self.assertEqual(open(pkg.local_path, "rb").read(), CONTENT.encode('utf-8'))
+ 
+     def test_download_packages_resume_on_mirror_switch(self):
++        # Resuming relies on librepo's user.librepo.downloadinprogress xattr;
++        # skip on filesystems without xattr support (e.g. tmpfs without xattrs),
++        # matching the other resume tests in this suite.
++        probe = os.path.join(self.tmpdir, ".xattr_probe")
++        with open(probe, "wb"):
++            pass
++        try:
++            xattr.setxattr(probe,
++                           "user.librepo.downloadinprogress".encode("utf-8"),
++                           "".encode("utf-8"))
++        except IOError as err:
++            if err.errno == errno.EOPNOTSUPP:
++                self.skipTest('extended attributes are not supported')
++            raise
++        finally:
++            os.unlink(probe)
++
+         h = librepo.Handle()
+ 
+         # First mirror serves only half of the file then drops connection.
